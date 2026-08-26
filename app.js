@@ -22,9 +22,10 @@ function render(){
   $("#statProfit").textContent=money(db.products.reduce((s,p)=>s+(p.selling-p.purchase)*p.stock,0));
   const q=$("#search").value.toLowerCase();
   const ps=db.products.filter(p=>[p.name,p.article,p.barcode,p.category].some(x=>String(x||"").toLowerCase().includes(q)));
-  $("#productList").innerHTML=ps.map(p=>`<div class="item open" data-id="${p.id}"><div><strong>${esc(p.name)}</strong><div class="meta">${esc(p.category||"Ohne Kategorie")} · ${esc(p.barcode||"kein Code")}</div></div><div class="right"><strong class="${p.min>0&&p.stock<=p.min?"low":""}">${p.stock} Stk.</strong><div class="meta">${money(p.selling)}</div></div></div>`).join("")||'<p class="hint">Noch keine Artikel.</p>';
+  $("#productList").innerHTML=ps.map(p=>`<div class="item open" data-id="${p.id}"><div><strong>${esc(p.name)}</strong><div class="meta">${esc(p.category||"Ohne Kategorie")} · ${esc(p.barcode||"kein Code")}</div></div><div class="right"><strong class="${p.min>0&&p.stock<=p.min?"low":""}">${p.stock} Stk.</strong><div class="meta">${money(p.selling)}</div><button class="qrBtn" data-id="${p.id}">▦ QR</button></div></div>`).join("")||'<p class="hint">Noch keine Artikel.</p>';
   $("#stockList").innerHTML=db.products.map(p=>`<div class="item"><div><strong>${esc(p.name)}</strong><div class="meta">EK ${money(p.purchase)} · VK ${money(p.selling)}</div></div><div class="right"><strong>${p.stock} Stk.</strong><br><button class="book" data-id="${p.id}">Buchen</button></div></div>`).join("")||'<p class="hint">Noch keine Artikel.</p>';
   $$(".open").forEach(x=>x.onclick=()=>openProduct(x.dataset.id));
+  $$(".qrBtn").forEach(x=>x.onclick=e=>{e.stopPropagation();openQr(x.dataset.id);});
   $$(".book").forEach(x=>x.onclick=()=>openStock(x.dataset.id));
   calc();
 }
@@ -83,6 +84,54 @@ async function scan(){
 function stopScan(){ if(timer)clearTimeout(timer);timer=null;if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;$("#scanDialog").close();}
 function finishScan(code){ stopScan(); const p=db.products.find(x=>x.barcode===code); if(p){openStock(p.id,"in");toast("Produkt gefunden");}else{openProduct(null,code);toast("Neuen Artikel anlegen");} }
 $("#scanBtn").onclick=scan;$("#scanStockBtn").onclick=scan;$("#scanForm").onclick=scan;$("#closeScan").onclick=stopScan;$("#useManual").onclick=()=>{const c=$("#manualCode").value.trim();if(c)finishScan(c);};
+
+
+function qrPayload(p){
+  return p.barcode || ("WAWI:"+p.id);
+}
+function openQr(id){
+  const p=db.products.find(x=>x.id===id); if(!p)return;
+  currentProduct=p;
+  const code=qrPayload(p);
+  $("#qrProductName").textContent=p.name;
+  $("#qrCodeText").textContent="Code: "+code;
+  $("#qrcode").innerHTML="";
+  if(typeof QRCode==="undefined"){ toast("QR-Bibliothek konnte nicht geladen werden"); return; }
+  new QRCode($("#qrcode"),{
+    text:code,width:256,height:256,
+    colorDark:"#000000",colorLight:"#ffffff",
+    correctLevel:QRCode.CorrectLevel.M
+  });
+  $("#qrDialog").showModal();
+}
+$("#closeQr").onclick=()=>$("#qrDialog").close();
+
+function qrCanvas(){
+  return $("#qrcode canvas");
+}
+$("#saveQr").onclick=()=>{
+  const c=qrCanvas();
+  if(!c)return toast("QR-Code noch nicht bereit");
+  const a=document.createElement("a");
+  a.href=c.toDataURL("image/png");
+  const safe=(currentProduct?.name||"produkt").replace(/[^a-z0-9äöüß_-]+/gi,"_");
+  a.download="QR_"+safe+".png";
+  a.click();
+};
+$("#shareQr").onclick=async()=>{
+  const c=qrCanvas(); if(!c)return toast("QR-Code noch nicht bereit");
+  try{
+    const blob=await new Promise(r=>c.toBlob(r,"image/png"));
+    const file=new File([blob],"produkt-qr.png",{type:"image/png"});
+    if(navigator.share && navigator.canShare?.({files:[file]})){
+      await navigator.share({title:currentProduct?.name||"Produkt QR-Code",files:[file]});
+    }else{
+      $("#saveQr").click();
+      toast("Teilen nicht unterstützt – Bild gespeichert");
+    }
+  }catch(e){}
+};
+
 
 $("#exportBtn").onclick=()=>{
   const blob=new Blob([JSON.stringify(db,null,2)],{type:"application/json"}),a=document.createElement("a");

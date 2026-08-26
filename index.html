@@ -117,7 +117,20 @@
 <button id="useManual" class="primary big">Code verwenden</button>
 </dialog>
 
+
+<dialog id="qrDialog">
+<div class="title"><h2>Produkt QR-Code</h2><button id="closeQr">✕</button></div>
+<p id="qrProductName"></p>
+<div id="qrcode"></div>
+<p id="qrCodeText" class="hint"></p>
+<div class="grid2">
+  <button id="saveQr">💾 Als Bild speichern</button>
+  <button id="shareQr">📤 Teilen</button>
+</div>
+</dialog>
+
 <div id="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
