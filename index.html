@@ -3,28 +3,51 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#111827">
+<meta name="theme-color" content="#06172d">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="stylesheet" href="styles-v3.css">
-<title>Warenwirtschaft</title>
+<link rel="stylesheet" href="styles-v4.css">
+<title>LagerPro</title>
 </head>
 <body>
-<header><h1>Warenwirtschaft</h1><button id="installBtn" hidden>Installieren</button></header>
+<header class="brandbar">
+  <div class="brandwrap">
+    <img src="icon-v4.svg" class="brandicon" alt="">
+    <div><h1>LagerPro</h1><p>Dein Lager. Deine Veredelung.</p></div>
+  </div>
+  <button id="installBtn" hidden>Installieren</button>
+</header>
 
 <main>
 <section id="dashboard" class="view active">
-  <div class="stats">
-    <div class="card"><small>Artikel</small><strong id="statProducts">0</strong></div>
-    <div class="card"><small>Lagerwert</small><strong id="statValue">0,00 €</strong></div>
-    <div class="card"><small>Niedriger Bestand</small><strong id="statLow">0</strong></div>
-    <div class="card"><small>Möglicher Gewinn</small><strong id="statProfit">0,00 €</strong></div>
+  <div class="hero">
+    <div>
+      <h2>Hallo! 👋</h2>
+      <p>Schön, dass du da bist.</p>
+      <p id="today" class="meta"></p>
+    </div>
+    <div class="heroart">📦📦📦</div>
   </div>
-  <button id="scanBtn" class="primary big">📷 Produkt scannen</button>
-  <div class="grid2">
-    <button data-nav="products">📦 Artikel</button>
-    <button data-nav="stock">↕️ Lager</button>
-    <button data-nav="calc">🧮 Rechner</button>
-    <button data-nav="settings">⚙️ Einstellungen</button>
+
+  <h3>Übersicht</h3>
+  <div class="stats">
+    <div class="metric"><span>📦</span><strong id="statProducts">0</strong><small>Artikel</small></div>
+    <div class="metric"><span>🏬</span><strong id="statStock">0</strong><small>Lagerbestand</small></div>
+    <div class="metric"><span>⚠️</span><strong id="statLow">0</strong><small>Mindestbestand</small></div>
+    <div class="metric"><span>📈</span><strong id="statValue">0,00 €</strong><small>Warenwert</small></div>
+  </div>
+
+  <div class="grid3">
+    <button data-nav="products"><span>📦</span><b>Artikel</b><small>Verwalten</small></button>
+    <button data-nav="stock"><span>⬇️</span><b>Lager</b><small>Bestände</small></button>
+    <button data-nav="production"><span>🧾</span><b>Veredelung</b><small>Produktion</small></button>
+    <button data-nav="qr"><span>▦</span><b>QR-Codes</b><small>Generieren</small></button>
+    <button data-nav="reports"><span>📄</span><b>Berichte</b><small>Statistiken</small></button>
+    <button data-nav="settings"><span>⚙️</span><b>Einstellungen</b><small>Konfiguration</small></button>
+  </div>
+
+  <div class="card">
+    <h3>Letzte Aktivitäten</h3>
+    <div id="activityList"></div>
   </div>
 </section>
 
@@ -36,8 +59,37 @@
 
 <section id="stock" class="view">
   <div class="title"><h2>Lager</h2></div>
-  <button id="scanStockBtn" class="primary big">📷 Scannen & buchen</button>
   <div id="stockList"></div>
+</section>
+
+<section id="production" class="view">
+  <div class="title"><h2>Veredelung</h2></div>
+  <div class="card">
+    <h3>Neue Fertigung</h3>
+    <p class="meta">Rohware auswählen, Bestand abbuchen und ein veredeltes Produkt erzeugen.</p>
+    <button id="startProduction" class="primary big">+ Veredelung starten</button>
+  </div>
+  <div id="productionList"></div>
+</section>
+
+<section id="qr" class="view">
+  <div class="title"><h2>QR-Codes</h2></div>
+  <div class="card">
+    <h3>QR-Code für Produkt</h3>
+    <label>Produkt<select id="qrProductSelect" class="input"></select></label>
+    <button id="generateQr" class="primary big">▦ QR-Code generieren</button>
+    <div id="qrcode"></div>
+    <p id="qrCodeText" class="meta"></p>
+  </div>
+</section>
+
+<section id="reports" class="view">
+  <div class="title"><h2>Berichte</h2></div>
+  <div class="stats">
+    <div class="metric"><strong id="repRevenue">0,00 €</strong><small>Möglicher Umsatz</small></div>
+    <div class="metric"><strong id="repProfit">0,00 €</strong><small>Möglicher Gewinn</small></div>
+  </div>
+  <div class="card"><h3>Gewinn & Marge</h3><button data-nav="calc">Rechner öffnen</button></div>
 </section>
 
 <section id="calc" class="view">
@@ -51,12 +103,11 @@
     <label>Sonstige Kosten<input id="other" class="input" inputmode="decimal"></label>
   </div>
   <div class="stats">
-    <div class="card"><small>Umsatz</small><strong id="revenue">0,00 €</strong></div>
-    <div class="card"><small>Kosten</small><strong id="costs">0,00 €</strong></div>
-    <div class="card"><small>Gewinn</small><strong id="profit">0,00 €</strong></div>
-    <div class="card"><small>Marge</small><strong id="margin">0,00 %</strong></div>
+    <div class="metric"><strong id="revenue">0,00 €</strong><small>Umsatz</small></div>
+    <div class="metric"><strong id="costs">0,00 €</strong><small>Kosten</small></div>
+    <div class="metric"><strong id="profit">0,00 €</strong><small>Gewinn</small></div>
+    <div class="metric"><strong id="margin">0,00 %</strong><small>Marge</small></div>
   </div>
-  <p class="hint">Kleinunternehmer-Modus: keine MwSt.-Berechnung.</p>
 </section>
 
 <section id="settings" class="view">
@@ -66,15 +117,16 @@
     <button id="exportBtn">Exportieren</button>
     <label class="buttonLike">Importieren<input id="importFile" type="file" accept="application/json" hidden></label>
   </div>
+  <div class="card"><b>Kleinunternehmer-Modus</b><p class="meta">Keine MwSt.-Berechnung.</p></div>
 </section>
 </main>
 
 <nav>
 <button data-nav="dashboard" class="active">🏠<span>Start</span></button>
 <button data-nav="products">📦<span>Artikel</span></button>
-<button data-nav="stock">↕️<span>Lager</span></button>
-<button data-nav="calc">🧮<span>Rechner</span></button>
-<button data-nav="settings">⚙️<span>Mehr</span></button>
+<button data-nav="stock">🏬<span>Lager</span></button>
+<button data-nav="production">👕<span>Veredelung</span></button>
+<button data-nav="settings">•••<span>Mehr</span></button>
 </nav>
 
 <dialog id="productDialog">
@@ -83,7 +135,7 @@
 <input type="hidden" id="pid">
 <label>Name<input id="name" class="input" required></label>
 <label>Artikelnummer<input id="article" class="input"></label>
-<label>Barcode / QR-Code<div class="inline"><input id="barcode" class="input"><button type="button" id="scanForm">📷</button></div></label>
+<label>Barcode / QR-Code<input id="barcode" class="input"></label>
 <label>Kategorie<input id="category" class="input"></label>
 <label>Einkaufspreis<input id="purchase" class="input" inputmode="decimal"></label>
 <label>Verkaufspreis<input id="selling" class="input" inputmode="decimal"></label>
@@ -109,28 +161,20 @@
 </form>
 </dialog>
 
-<dialog id="scanDialog">
-<div class="title"><h2>Scannen</h2><button id="closeScan">✕</button></div>
-<video id="video" autoplay playsinline muted></video>
-<p id="scanStatus" class="hint">Kamera wird gestartet…</p>
-<label>Oder Code manuell eingeben<input id="manualCode" class="input"></label>
-<button id="useManual" class="primary big">Code verwenden</button>
-</dialog>
-
-
-<dialog id="qrDialog">
-<div class="title"><h2>Produkt QR-Code</h2><button id="closeQr">✕</button></div>
-<p id="qrProductName"></p>
-<div id="qrcode"></div>
-<p id="qrCodeText" class="hint"></p>
-<div class="grid2">
-  <button id="saveQr">💾 Als Bild speichern</button>
-  <button id="shareQr">📤 Teilen</button>
-</div>
+<dialog id="productionDialog">
+<form id="productionForm">
+<div class="title"><h2>Veredelung</h2><button type="button" id="closeProduction">✕</button></div>
+<label>Rohware<select id="rawProduct" class="input"></select></label>
+<label>Menge<input id="prodQty" class="input" inputmode="numeric" value="1"></label>
+<label>Name des fertigen Produkts<input id="finishedName" class="input" placeholder="z. B. T-Shirt Blau L – Feuerwehr"></label>
+<label>Veredelungskosten pro Stück<input id="prodExtraCost" class="input" inputmode="decimal"></label>
+<label>Verkaufspreis pro Stück<input id="prodSelling" class="input" inputmode="decimal"></label>
+<button class="primary big" type="submit">Fertigung buchen</button>
+</form>
 </dialog>
 
 <div id="toast"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="app-v3.js"></script>
+<script src="app-v4.js"></script>
 </body>
 </html>

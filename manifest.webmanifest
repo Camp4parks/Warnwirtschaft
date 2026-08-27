@@ -1,13 +1,13 @@
 {
-  "name": "Meine Warenwirtschaft",
-  "short_name": "Wawi",
+  "name": "LagerPro",
+  "short_name": "LagerPro",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#f3f4f6",
-  "theme_color": "#111827",
+  "background_color": "#f5f7fb",
+  "theme_color": "#06172d",
   "icons": [
     {
-      "src": "icon.svg",
+      "src": "icon-v4.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
